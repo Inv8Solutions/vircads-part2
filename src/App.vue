@@ -1,98 +1,92 @@
 <script setup lang="ts">
 import Phaser from 'phaser';
 import { ref, toRaw } from 'vue';
-import type { MainMenu } from './game/scenes/MainMenu';
 import PhaserGame from './PhaserGame.vue';
 
-// The sprite can only be moved in the MainMenu Scene
-const canMoveSprite = ref();
+// References to the PhaserGame component (game and scene are exposed)
+const phaserRef = ref<any>();
 
-//  References to the PhaserGame component (game and scene are exposed)
-const phaserRef = ref();
+// keep some existing helpers (optional)
 const spritePosition = ref({ x: 0, y: 0 });
 
+// Change / helper functions that interact with the current Phaser scene
 const changeScene = () => {
-
-    const scene = toRaw(phaserRef.value.scene) as MainMenu;
-
-    if (scene)
-    {
-        //  Call the changeScene method defined in the `MainMenu`, `Game` and `GameOver` Scenes
-        scene.changeScene();
-    }
-
+    const scene = toRaw(phaserRef.value?.scene) as any;
+    if (scene && typeof scene.changeScene === 'function') scene.changeScene();
 }
 
 const moveSprite = () => {
-
-    if (phaserRef.value !== undefined)
-    {
-
-        const scene = toRaw(phaserRef.value.scene) as MainMenu;
-
-        if (scene)
-        {
-            // Get the update logo position
-            (scene as MainMenu).moveLogo(({ x, y }) => {
-
-                spritePosition.value = { x, y };
-
-            });
-        }
+    const scene = toRaw(phaserRef.value?.scene) as any;
+    if (scene && typeof scene.moveLogo === 'function') {
+        scene.moveLogo(({ x, y }: { x: number; y: number }) => { spritePosition.value = { x, y }; });
     }
-
 }
 
 const addSprite = () => {
-
-    const scene = toRaw(phaserRef.value.scene) as Phaser.Scene;
-
-    if (scene)
-    {
-        // Add a new sprite to the current scene at a random position
-        const x = Phaser.Math.Between(64, scene.scale.width - 64);
-        const y = Phaser.Math.Between(64, scene.scale.height - 64);
-    
-        // `add.sprite` is a Phaser GameObjectFactory method and it returns a Sprite Game Object instance
-        const star = scene.add.sprite(x, y, 'star');
-
-        //  ... which you can then act upon. Here we create a Phaser Tween to fade the star sprite in and out.
-        //  You could, of course, do this from within the Phaser Scene code, but this is just an example
-        //  showing that Phaser objects and systems can be acted upon from outside of Phaser itself.
-        scene.add.tween({
-            targets: star,
-            duration: 500 + Math.random() * 1000,
-            alpha: 0,
-            yoyo: true,
-            repeat: -1
-        });
-    }
-
+    const scene = toRaw(phaserRef.value?.scene) as Phaser.Scene | undefined;
+    if (!scene) return;
+    const x = Phaser.Math.Between(64, scene.scale.width - 64);
+    const y = Phaser.Math.Between(64, scene.scale.height - 64);
+    const star = scene.add.sprite(x, y, 'star');
+    scene.add.tween({ targets: star, duration: 500 + Math.random() * 1000, alpha: 0, yoyo: true, repeat: -1 });
 }
 
 // Event emitted from the PhaserGame component
-const currentScene = (scene: MainMenu) => {
+const currentScene = (scene: any) => {
+    // example: update UI state when scene changes
+}
 
-    canMoveSprite.value = (scene.scene.key !== "MainMenu");
+// Dynamically import all scene modules from the scenes folder (Vite)
+const modules = import.meta.glob('./game/scenes/*.ts', { eager: true }) as Record<string, any>;
 
+type SceneEntry = { key: string; cls: any };
+const sceneEntries: SceneEntry[] = Object.entries(modules).map(([path, mod]) => {
+    const file = path.split('/').pop() || path;
+    const key = file.replace(/\.(ts|js)x?$/, '');
+    // pick first exported function/class
+    const exported = Object.values(mod).find((v: any) => typeof v === 'function');
+    return { key, cls: exported };
+}).filter(e => e.cls);
+
+const scenes = sceneEntries.map(s => s.key);
+
+const startScene = (key: string) => {
+    const entry = sceneEntries.find(e => e.key === key);
+    if (!entry) return;
+
+    // PhaserGame exposes `game` as a ref via defineExpose; get the actual Game instance
+    const maybeGame = phaserRef.value?.game;
+    const gameObj: Phaser.Game | undefined = maybeGame?.value ?? maybeGame ?? undefined;
+    if (!gameObj) return;
+
+    try {
+        const sceneSys = (gameObj.scene as any);
+        // register scene class if not present
+        try {
+            const existing = sceneSys.getScene?.(key);
+            if (!existing && entry.cls) sceneSys.add(key, entry.cls, false);
+        } catch (e) {
+            if (entry.cls) {
+                try { sceneSys.add(key, entry.cls, false); } catch (e) {}
+            }
+        }
+
+        sceneSys.start(key);
+    } catch (e) {}
 }
 
 </script>
 
 <template>
     <PhaserGame ref="phaserRef" @current-active-scene="currentScene" />
-    <div>
-        <div>
-            <button class="button" @click="changeScene">Change Scene</button>
-        </div>
-        <div>
-            <button :disabled="canMoveSprite" class="button" @click="moveSprite">Toggle Movement</button>
-        </div>
-        <div class="spritePosition">Sprite Position:
-            <pre>{{ spritePosition }}</pre>
-        </div>
-        <div>
-            <button class="button" @click="addSprite">Add New Sprite</button>
+
+    <div style="position:fixed; right:8px; top:8px; background:rgba(0,0,0,0.6); padding:10px; border-radius:6px; color:#fff; z-index:9999;">
+        <div style="font-weight:600; margin-bottom:6px;">Dev Scenes</div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+            <div v-for="key in scenes" :key="key">
+                <button class="button" @click="startScene(key)">{{ key }}</button>
+            </div>
         </div>
     </div>
+
 </template>
