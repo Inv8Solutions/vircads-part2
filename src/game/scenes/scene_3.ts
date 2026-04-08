@@ -11,6 +11,8 @@ export class Scene3 extends Scene {
         // use scene_2.png as requested
         this.add.image(width / 2, height / 2, 'scene_2').setDisplaySize(width, height);
 
+        
+
         const dialogW = Math.min(480, Math.floor(width * 0.6));
         const dialogH = 48;
         const dialogX = width / 2;

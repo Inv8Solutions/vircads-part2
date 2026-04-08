@@ -23,6 +23,19 @@ export class Scene4 extends Scene {
         const zone = this.add.zone(dialogX, dialogY, dialogW, dialogH).setOrigin(0.5).setInteractive({ useHandCursor: true });
         zone.on('pointerdown', () => this.scene.start('scene_5'));
 
+        // Top-center dialog (moved from scene_3)
+        const content = `The first to be examined is the brain. To access the skull covering the brain, cut across the cadaver’s scalp, from ear to ear. To do so, obtain the necessary equipment for dissection from the table.`;
+        const dialogWTop = Math.min(900, Math.floor(width * 0.8));
+        const dialogXTop = width / 2;
+        const dialogYTop = 28;
+
+        const textTop = this.add.text(dialogXTop - dialogWTop / 2 + 12, dialogYTop, content, { font: '16px Arial', color: '#ffffff', wordWrap: { width: dialogWTop - 24 } });
+        const boxHTop = textTop.height + 20;
+        const gfxTop = this.add.graphics();
+        gfxTop.fillStyle(0x000000, 0.75);
+        gfxTop.fillRoundedRect(dialogXTop - dialogWTop / 2, dialogYTop - 10, dialogWTop, boxHTop, 8);
+        textTop.setDepth(1);
+
         EventBus.emit('current-scene-ready', this);
     }
 }

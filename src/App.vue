@@ -48,7 +48,19 @@ const sceneEntries: SceneEntry[] = Object.entries(modules).map(([path, mod]) => 
     return { key, cls: exported };
 }).filter(e => e.cls);
 
-const scenes = sceneEntries.map(s => s.key);
+// Order scenes: Boot, Intro, then numeric scenes (scene_1, scene_2, ...), then any other scenes
+const allKeys = sceneEntries.map(s => s.key);
+const orderedNames = ['Boot', 'Intro'];
+const named = orderedNames.filter(n => allKeys.includes(n));
+const numeric = allKeys
+    .filter(k => /scene_\d+$/.test(k))
+    .sort((a, b) => {
+        const na = parseInt(a.match(/scene_(\d+)$/)![1], 10);
+        const nb = parseInt(b.match(/scene_(\d+)$/)![1], 10);
+        return na - nb;
+    });
+const others = allKeys.filter(k => !named.includes(k) && !numeric.includes(k)).sort((a, b) => a.localeCompare(b));
+const scenes = [...named, ...numeric, ...others];
 
 const startScene = (key: string) => {
     const entry = sceneEntries.find(e => e.key === key);
@@ -61,6 +73,17 @@ const startScene = (key: string) => {
 
     try {
         const sceneSys = (gameObj.scene as any);
+        // stop any currently active scenes (so we reliably return)
+        try {
+            const active = (sceneSys.getScenes ? sceneSys.getScenes(true) : []) || [];
+            for (const s of active) {
+                const k = s && s.scene && s.scene.key ? s.scene.key : (s.key || null);
+                if (k && k !== key) {
+                    try { sceneSys.stop(k); } catch (e) {}
+                }
+            }
+        } catch (e) {}
+
         // register scene class if not present
         try {
             const existing = sceneSys.getScene?.(key);
@@ -80,9 +103,9 @@ const startScene = (key: string) => {
 <template>
     <PhaserGame ref="phaserRef" @current-active-scene="currentScene" />
 
-    <div style="position:fixed; right:8px; top:8px; background:rgba(0,0,0,0.6); padding:10px; border-radius:6px; color:#fff; z-index:9999;">
+    <div style="position:fixed; right:8px; top:8px; background:rgba(0,0,0,0.6); padding:10px; border-radius:6px; color:#fff; z-index:9999; max-height:80vh; width:260px; box-sizing:border-box;">
         <div style="font-weight:600; margin-bottom:6px;">Dev Scenes</div>
-        <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start; max-height:calc(80vh - 36px); overflow-y:auto; padding-right:6px;">
             <div v-for="key in scenes" :key="key">
                 <button class="button" @click="startScene(key)">{{ key }}</button>
             </div>
