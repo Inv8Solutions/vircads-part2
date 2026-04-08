@@ -21,6 +21,7 @@ export class Boot extends Scene
         this.load.image('scene_3', 'assets/scene_3.png');
         this.load.image('scene_6', 'assets/scene_6.png');
         this.load.image('scene_8', 'assets/scene_8.png');
+        this.load.image('scene_10', 'assets/scene_10.png');
     }
 
     create ()

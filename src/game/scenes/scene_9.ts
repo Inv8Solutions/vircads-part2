@@ -50,6 +50,8 @@ export class Scene9 extends Scene {
         btnZone.on('pointerout', () => { btnG.clear(); btnG.fillStyle(0x1e90ff, 1); btnG.fillRoundedRect(btnX - btnW / 2, btnY - btnH / 2, btnW, btnH, 8); });
 
         EventBus.emit('current-scene-ready', this);
+
+        
     }
 }
 
