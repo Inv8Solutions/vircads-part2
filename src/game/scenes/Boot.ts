@@ -39,6 +39,8 @@ export class Boot extends Scene
         this.load.image('lab_tech', 'assets/lab_tech.png');
         this.load.image('optic_chiasm', 'assets/optic_chiasm.jpeg');
         this.load.image('scene_23', 'assets/scene_23.png');
+        this.load.image('scene_27', 'assets/scene_27.png');
+        this.load.image('scene_29', 'assets/scene_29.png');
     }
 
     create ()

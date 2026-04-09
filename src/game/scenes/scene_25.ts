@@ -48,6 +48,47 @@ export class Scene25 extends Scene {
             this.initThreeOBJ(OBJ_URL, vpBounds);
         }
 
+        // Top-middle dialog: description
+        const topW = Math.min(640, Math.round(width * 0.6));
+        const topPad = 12;
+        const topText = 'This is a model of the extracted brain';
+        const topStyle: Phaser.Types.GameObjects.Text.TextStyle = { font: '16px Arial', color: '#ffffff', wordWrap: { width: topW - topPad * 2 } };
+        const topObj = this.add.text(0, 0, topText, topStyle).setOrigin(0.5, 0).setDepth(1002);
+        const topH = topPad + topObj.height + topPad;
+        const topBg = this.add.graphics().setDepth(1001);
+        topBg.fillStyle(0x000000, 0.9);
+        topBg.fillRoundedRect(-topW / 2, 0, topW, topH, 8);
+        const topY = 18;
+        const topContainer = this.add.container(width / 2, topY, [topBg, topObj]).setDepth(1002);
+        topObj.x = 0; topObj.y = topPad;
+
+        // Bottom-center dialog: interaction hint
+        const botW = Math.min(520, Math.round(width * 0.5));
+        const botPad = 10;
+        const botText = 'click and drag the model to rotate';
+        const botStyle: Phaser.Types.GameObjects.Text.TextStyle = { font: '15px Arial', color: '#ffffff', wordWrap: { width: botW - botPad * 2 } };
+        const botObj = this.add.text(0, 0, botText, botStyle).setOrigin(0.5, 0).setDepth(1002);
+        const botH = botPad + botObj.height + botPad;
+        const botBg = this.add.graphics().setDepth(1001);
+        botBg.fillStyle(0x000000, 0.9);
+        botBg.fillRoundedRect(-botW / 2, 0, botW, botH, 8);
+        const botY = height - botH - 18;
+        const botContainer = this.add.container(width / 2, botY, [botBg, botObj]).setDepth(1002);
+        botObj.x = 0; botObj.y = botPad;
+
+        // Lower-right Next button
+        const nextX = width - 96;
+        const nextY = height - 72;
+        const nbBg = this.add.rectangle(0, 0, 160, 48, 0x000000, 0.85).setOrigin(0.5).setDepth(1005);
+        const nbTxt = this.add.text(0, 0, 'Next', { font: '20px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1006);
+        nbBg.setInteractive({ useHandCursor: true });
+        const nbContainer = this.add.container(nextX, nextY, [nbBg, nbTxt]).setDepth(1005);
+        nbBg.on('pointerdown', () => {
+            nbContainer.destroy();
+            // start the next scene (scene_26)
+            this.scene.start('scene_26');
+        });
+
         EventBus.emit('current-scene-ready', this);
     }
 
