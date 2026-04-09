@@ -32,8 +32,14 @@ const addSprite = () => {
 }
 
 // Event emitted from the PhaserGame component
+const activeSceneName = ref('');
 const currentScene = (scene: any) => {
-    // example: update UI state when scene changes
+    try {
+        const k = scene && (scene.scene && scene.scene.key) ? scene.scene.key : (scene.key || '');
+        activeSceneName.value = k || '';
+    } catch (e) {
+        activeSceneName.value = '';
+    }
 }
 
 // Dynamically import all scene modules from the scenes folder (Vite)
@@ -104,7 +110,10 @@ const startScene = (key: string) => {
     <PhaserGame ref="phaserRef" @current-active-scene="currentScene" />
 
     <div style="position:fixed; right:8px; top:8px; background:rgba(0,0,0,0.6); padding:10px; border-radius:6px; color:#fff; z-index:9999; max-height:80vh; width:260px; box-sizing:border-box;">
-        <div style="font-weight:600; margin-bottom:6px;">Dev Scenes</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+            <div style="font-weight:600;">Dev Scenes</div>
+            <div style="font-size:12px; opacity:0.9;">Current: <strong>{{ activeSceneName || '—' }}</strong></div>
+        </div>
         <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start; max-height:calc(80vh - 36px); overflow-y:auto; padding-right:6px;">
             <div v-for="key in scenes" :key="key">
                 <button class="button" @click="startScene(key)">{{ key }}</button>

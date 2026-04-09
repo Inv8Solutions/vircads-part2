@@ -14,6 +14,29 @@ export class Scene10 extends Scene {
         const debugText = this.add.text(12, height - 28, '', { font: '14px Arial', color: '#00ff00' }).setDepth(2);
         let marker: Phaser.GameObjects.Graphics | null = null;
 
+        // Top-centered dialog with instructions (dismissible)
+        const dialogText = 'Follow the lines to make a coronal incision, starting from behind the body\'s left ear.';
+        const boxWidth = Math.min(width * 0.9, 720);
+        const textStyle: Phaser.Types.GameObjects.Text.TextStyle = { font: '18px Arial', color: '#ffffff', align: 'center', wordWrap: { width: boxWidth - 24 } };
+        const infoText = this.add.text(0, 0, dialogText, textStyle).setOrigin(0.5, 0);
+        const boxHeight = infoText.height + 16;
+
+        const bg = this.add.graphics();
+        bg.fillStyle(0x000000, 0.85);
+        bg.fillRoundedRect(-boxWidth / 2, 0, boxWidth, boxHeight, 8);
+
+        const dialogContainer = this.add.container(width / 2, 12, [bg, infoText]).setDepth(1000);
+        infoText.y = 8;
+
+        // Make dialog dismissible on pointerdown
+        dialogContainer.setSize(boxWidth, boxHeight);
+        dialogContainer.setInteractive(new Phaser.Geom.Rectangle(-boxWidth / 2, 0, boxWidth, boxHeight), Phaser.Geom.Rectangle.Contains);
+        dialogContainer.on('pointerdown', () => {
+            dialogContainer.destroy();
+            bg.destroy();
+            infoText.destroy();
+        });
+
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             const x = Math.round(pointer.x);
             const y = Math.round(pointer.y);
@@ -29,13 +52,27 @@ export class Scene10 extends Scene {
         });
 
         // Invisible drawing hit area: use a transparent rectangle for reliable input
-        // Original coordinates: (576,622) to (1069,627)
-        const hx1 = 576, hy1 = 622, hx2 = 1069, hy2 = 627;
-        const hW = Math.max(1, hx2 - hx1);
+        // Original image coordinates: (576,622) to (1069,627)
+        const origHx1 = 576, origHy1 = 622, origHx2 = 1069, origHy2 = 627;
+
+        // Try to get the source image size and compute scale to current display size
+        const srcImg: any = this.textures.get('scene_10')?.getSourceImage?.();
+        const imgW = (srcImg && srcImg.width) ? srcImg.width : 1;
+        const imgH = (srcImg && srcImg.height) ? srcImg.height : 1;
+        const scaleX = width / imgW;
+        const scaleY = height / imgH;
+
+        // Scale the original hitbox coords to match the displayed image size
+        const hx1 = origHx1 * scaleX;
+        const hx2 = origHx2 * scaleX;
+        const hy1 = origHy1 * scaleY;
+        const hy2 = origHy2 * scaleY;
+
         // make hitbox taller upwards so it's easier to start drawing from above
-        const upExtra = 120; // expand upwards by this many pixels
+        const upExtra = 120 * scaleY; // expand upwards scaled to display
         const top = Math.max(0, hy1 - upExtra);
         const bottom = hy2;
+        const hW = Math.max(1, hx2 - hx1);
         const hH = Math.max(20, bottom - top);
         const hX = hx1 + hW / 2;
         const hY = top + hH / 2;
@@ -119,7 +156,7 @@ export class Scene10 extends Scene {
                 if (drawing) return; // already handled
                 const px = pointer.x;
                 const py = pointer.y;
-                // check bounds against original area (hx1..hx2) and expanded top..bottom
+                // check bounds against the scaled hit area (hx1..hx2) and expanded top..bottom
                 if (px >= hx1 && px <= hx2 && py >= top && py <= bottom) {
                     // reset any prior incomplete/finalized drawing
                     if (drawG && (incomplete || finalized)) {
@@ -181,7 +218,7 @@ export class Scene10 extends Scene {
             lastY = y;
             hasDrawn = true;
 
-            // If the pointer reaches the right edge of the original area, finalize
+            // If the pointer reaches the right edge of the scaled hit area, finalize
             if (!reachedEdge && x >= hx2 - 2) {
                 reachedEdge = true;
                 finalized = true;

@@ -16,6 +16,16 @@ import { Scene12 } from './scenes/scene_12';
 import { Scene13 } from './scenes/scene_13';
 import { Scene14 } from './scenes/scene_14';
 import { Scene15 } from './scenes/scene_15';
+import { Scene16 } from './scenes/scene_16';
+import { Scene17 } from './scenes/scene_17';
+import { Scene18 } from './scenes/scene_18';
+import { Scene19 } from './scenes/scene_19';
+import { Scene20 } from './scenes/scene_20';
+import { Scene21 } from './scenes/scene_21';
+import { Scene22 } from './scenes/scene_22';
+import { Scene23 } from './scenes/scene_23';
+import { Scene24 } from './scenes/scene_24';
+import { Scene25 } from './scenes/scene_25';
 import { AUTO, Game } from 'phaser';
 
 // Find out more information about the Game Config at:
@@ -43,7 +53,17 @@ const config: Phaser.Types.Core.GameConfig = {
         Scene12,
         Scene13,
         Scene14,
-        Scene15
+        Scene15,
+        Scene16,
+        Scene17,
+        Scene18,
+        Scene19,
+        Scene20,
+        Scene21,
+        Scene22,
+        Scene23,
+        Scene24,
+        Scene25
     ]
 };
 

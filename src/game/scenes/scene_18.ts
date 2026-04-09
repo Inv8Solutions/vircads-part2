@@ -1,42 +1,27 @@
 import { Scene } from 'phaser';
 import { EventBus } from '../EventBus';
 
-export class Scene12 extends Scene {
-    constructor() {
-        super('scene_12');
-    }
+export class Scene18 extends Scene {
+    constructor() { super('scene_18'); }
 
     create() {
         const { width, height } = this.scale;
-        this.add.image(width / 2, height / 2, 'scene_12').setDisplaySize(width, height);
+        this.add.image(width / 2, height / 2, 'scene_18').setDisplaySize(width, height);
 
-        // Add placard image at specified coordinates and resize by -1rem from actual height
-        // Requires 'placard' key to be preloaded in Boot.ts
-        const placard = this.add.image(1074, 478, 'placard').setOrigin(0, 0);
-        const pSrc: any = this.textures.get('placard')?.getSourceImage?.();
-        const pW = (pSrc && pSrc.width) ? pSrc.width : (placard.width || 1);
-        const pH = (pSrc && pSrc.height) ? pSrc.height : (placard.height || 1);
-        const remPx = 16; // 1rem ≈ 16px
-        const targetH = Math.max(1, pH - remPx);
-        const pScale = targetH / pH;
-        placard.setDisplaySize(Math.max(1, Math.round(pW * pScale)), Math.max(1, Math.round(pH * pScale)));
-
-        // Dialog card: image on top and caption below
+        // Dialog card: image on top and caption below (styled like scene_12)
         const baseWidth = Math.min(width * 0.8, 640);
-        const reducePx = 96; // ~3rem + another ~3rem = ~6rem
+        const reducePx = 96;
         const cardWidth = Math.max(160, baseWidth - reducePx);
         const padding = 12;
-        // Create a container for the card
+
         const cardBg = this.add.graphics();
         cardBg.fillStyle(0x000000, 0.9);
-        // temporary height; will adjust after loading image size
         const cardHeight = 240;
         cardBg.fillRoundedRect(-cardWidth / 2, 0, cardWidth, cardHeight, 10);
 
         const cardContainer = this.add.container(cardWidth / 2 + 20, 40, [cardBg]).setDepth(1000);
 
-        // Add the image (scaled to fit cardWidth - padding)
-        const imgKey = 'coronal_flap';
+        const imgKey = 'skull_removal';
         const img = this.add.image(0, 0, imgKey).setOrigin(0.5, 0);
         const srcImg: any = this.textures.get(imgKey)?.getSourceImage?.();
         const srcW = (srcImg && srcImg.width) ? srcImg.width : img.width || cardWidth - padding * 2;
@@ -48,17 +33,14 @@ export class Scene12 extends Scene {
         img.y = padding;
         cardContainer.add(img);
 
-        // Caption text below the image
-        const caption = this.add.text(0, img.y + img.displayHeight + 8, 'actual image', { font: '16px Arial', color: '#ffffff', align: 'center' }).setOrigin(0.5, 0);
+        const caption = this.add.text(0, img.y + img.displayHeight + 8, 'actual image after removing the skull', { font: '16px Arial', color: '#ffffff', align: 'center', wordWrap: { width: maxImgW } }).setOrigin(0.5, 0);
         cardContainer.add(caption);
 
-        // Adjust background height to fit image + caption
         const totalH = padding + img.displayHeight + 8 + caption.height + padding;
         cardBg.clear();
         cardBg.fillStyle(0x000000, 0.9);
         cardBg.fillRoundedRect(-cardWidth / 2, 0, cardWidth, totalH, 10);
 
-        // Make card dismissible
         cardContainer.setSize(cardWidth, totalH);
         cardContainer.setInteractive(new Phaser.Geom.Rectangle(-cardWidth / 2, 0, cardWidth, totalH), Phaser.Geom.Rectangle.Contains);
         cardContainer.on('pointerdown', () => { cardContainer.destroy(); cardBg.destroy(); img.destroy(); caption.destroy(); });
@@ -66,18 +48,17 @@ export class Scene12 extends Scene {
         // Bottom-right Next button
         const nextX = width - 96;
         const nextY = height - 72;
-        const nbBg = this.add.rectangle(0, 0, 160, 48, 0x000000, 0.8).setOrigin(0.5).setDepth(1000);
-        const nbTxt = this.add.text(0, 0, 'Next', { font: '20px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1000);
+        const nbBg = this.add.rectangle(0, 0, 160, 48, 0x000000, 0.8).setOrigin(0.5).setDepth(1001);
+        const nbTxt = this.add.text(0, 0, 'Next', { font: '20px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1001);
         nbBg.setInteractive({ useHandCursor: true });
-        const nbContainer = this.add.container(nextX, nextY, [nbBg, nbTxt]).setDepth(1000);
+        const nbContainer = this.add.container(nextX, nextY, [nbBg, nbTxt]).setDepth(1001);
         nbBg.on('pointerdown', () => {
             nbContainer.destroy();
-            // start the next scene (scene_13)
-            this.scene.start('scene_13');
+            this.scene.start('scene_19');
         });
 
         EventBus.emit('current-scene-ready', this);
     }
 }
 
-export default Scene12;
+export default Scene18;
