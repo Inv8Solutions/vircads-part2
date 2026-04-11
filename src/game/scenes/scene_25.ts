@@ -1,7 +1,8 @@
 import { Scene } from 'phaser';
 import { EventBus } from '../EventBus';
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export class Scene25 extends Scene {
     constructor() { super('scene_25'); }
@@ -41,11 +42,11 @@ export class Scene25 extends Scene {
         };
         this.data.set('modelViewport', vpBounds);
 
-        // 3D OBJ scaffold: drop a .obj into public/assets and update OBJ_URL below
-        const OBJ_URL = 'assets/your_model.obj';
+        // 3D GLB scaffold: place `brain_model.glb` into `public/assets` and update GLB_URL if needed
+        const GLB_URL = 'assets/brain_model.glb';
         const ENABLE_3D = true;
         if (ENABLE_3D) {
-            this.initThreeOBJ(OBJ_URL, vpBounds);
+            this.initThreeOBJ(GLB_URL, vpBounds);
         }
 
         // Top-middle dialog: description
@@ -65,7 +66,7 @@ export class Scene25 extends Scene {
         // Bottom-center dialog: interaction hint
         const botW = Math.min(520, Math.round(width * 0.5));
         const botPad = 10;
-        const botText = 'click and drag the model to rotate';
+        const botText = 'click inside the 3d model viewer and move cursor outside the viewer to rotate the model';
         const botStyle: Phaser.Types.GameObjects.Text.TextStyle = { font: '15px Arial', color: '#ffffff', wordWrap: { width: botW - botPad * 2 } };
         const botObj = this.add.text(0, 0, botText, botStyle).setOrigin(0.5, 0).setDepth(1002);
         const botH = botPad + botObj.height + botPad;
@@ -92,15 +93,24 @@ export class Scene25 extends Scene {
         EventBus.emit('current-scene-ready', this);
     }
 
-    private initThreeOBJ(objUrl: string, vp: { x: number; y: number; width: number; height: number }) {
+    private initThreeOBJ(assetUrl: string, vp: { x: number; y: number; width: number; height: number }) {
         const parent = this.game.canvas.parentElement || document.body;
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio || 1);
         renderer.setSize(vp.width, vp.height);
         renderer.domElement.style.position = 'absolute';
-        renderer.domElement.style.left = `${Math.round(vp.x - vp.width / 2)}px`;
-        renderer.domElement.style.top = `${Math.round(vp.y - vp.height / 2)}px`;
-        renderer.domElement.style.pointerEvents = 'none';
+        // Position the canvas exactly over the Phaser canvas viewport area
+        const canvasRect = this.game.canvas.getBoundingClientRect();
+        const left = Math.round(canvasRect.left + vp.x - vp.width / 2 + window.scrollX);
+        const top = Math.round(canvasRect.top + vp.y - vp.height / 2 + window.scrollY);
+        renderer.domElement.style.left = `${left}px`;
+        renderer.domElement.style.top = `${top}px`;
+        // allow interaction on the GL canvas and place it above the Phaser canvas
+        renderer.domElement.style.pointerEvents = 'auto';
+        // compute Phaser canvas z-index and set GL canvas one level above it
+        const gameZStr = window.getComputedStyle(this.game.canvas).zIndex || '0';
+        const gameZ = Number.isNaN(parseInt(gameZStr, 10)) ? 0 : parseInt(gameZStr, 10);
+        renderer.domElement.style.zIndex = String(gameZ + 1);
         parent.appendChild(renderer.domElement);
 
         const scene = new THREE.Scene();
@@ -112,28 +122,77 @@ export class Scene25 extends Scene {
         dir.position.set(2, 3, 4);
         scene.add(ambient, dir);
 
-        const loader = new OBJLoader();
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.07;
+        controls.screenSpacePanning = false;
+        controls.target.set(0, 0, 0);
+
+        // prevent pointer events from reaching Phaser canvas underneath
+        const stopPropagation = (e: Event) => { e.stopPropagation(); };
+        renderer.domElement.addEventListener('pointerdown', stopPropagation);
+        renderer.domElement.addEventListener('pointermove', stopPropagation);
+        renderer.domElement.addEventListener('pointerup', stopPropagation);
+        renderer.domElement.addEventListener('touchstart', stopPropagation);
+        renderer.domElement.addEventListener('touchmove', stopPropagation);
+        renderer.domElement.addEventListener('touchend', stopPropagation);
+
+        // load GLTF/GLB
+        const loader = new GLTFLoader();
         loader.load(
-            objUrl,
-            (obj) => {
-                obj.position.set(0, 0, 0);
-                scene.add(obj);
+            assetUrl,
+            (gltf) => {
+                const model = gltf.scene || gltf.scenes?.[0];
+                if (!model) {
+                    // eslint-disable-next-line no-console
+                    console.warn('GLTF loaded but no scene found:', assetUrl);
+                    return;
+                }
+                model.position.set(0, 0, 0);
+                // scale to fit viewport roughly
+                const box = new THREE.Box3().setFromObject(model);
+                const size = box.getSize(new THREE.Vector3()).length();
+                const scale = Math.max(0.5, 3.0 / size);
+                model.scale.setScalar(scale);
+                scene.add(model);
             },
             undefined,
-            () => {
+            (err) => {
                 // eslint-disable-next-line no-console
-                console.warn('OBJ load failed:', objUrl);
+                console.warn('GLTF load failed:', assetUrl, err);
             }
         );
 
         const update = () => {
+            controls.update();
             renderer.render(scene, camera);
         };
         this.events.on('update', update);
+
+        const onWindowResize = () => {
+            const canvasRect = this.game.canvas.getBoundingClientRect();
+            const left = Math.round(canvasRect.left + vp.x - vp.width / 2 + window.scrollX);
+            const top = Math.round(canvasRect.top + vp.y - vp.height / 2 + window.scrollY);
+            renderer.domElement.style.left = `${left}px`;
+            renderer.domElement.style.top = `${top}px`;
+            renderer.setSize(vp.width, vp.height);
+            camera.aspect = vp.width / vp.height;
+            camera.updateProjectionMatrix();
+        };
+        window.addEventListener('resize', onWindowResize);
+
         this.events.once('shutdown', () => {
             this.events.off('update', update);
+            renderer.domElement.removeEventListener('pointerdown', stopPropagation);
+            renderer.domElement.removeEventListener('pointermove', stopPropagation);
+            renderer.domElement.removeEventListener('pointerup', stopPropagation);
+            renderer.domElement.removeEventListener('touchstart', stopPropagation);
+            renderer.domElement.removeEventListener('touchmove', stopPropagation);
+            renderer.domElement.removeEventListener('touchend', stopPropagation);
+            controls.dispose();
             renderer.dispose();
             renderer.domElement.remove();
+            window.removeEventListener('resize', onWindowResize);
         });
     }
 }

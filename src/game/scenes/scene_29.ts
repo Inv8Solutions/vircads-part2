@@ -42,6 +42,7 @@ export class Scene29 extends Scene {
         let prevY = 0;
         const drawGfx = this.add.graphics().setDepth(1250);
         drawGfx.lineStyle(4, 0xff0000, 1);
+        // simple drawing (no stroke counting)
 
         drawZone.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             isDrawing = true;
@@ -93,6 +94,20 @@ export class Scene29 extends Scene {
         actorImg.y = dPadding;
         dialogTextObj.x = -dialogW / 2 + dPadding + actorImg.displayWidth + 12;
         dialogTextObj.y = dPadding;
+
+        // Lower-right Next button (hidden until 3 drawn lines)
+        const nextX = width - 96;
+        const nextY = height - 72;
+        const nbBg = this.add.rectangle(0, 0, 160, 48, 0x000000, 0.85).setOrigin(0.5).setDepth(1005);
+        const nbTxt = this.add.text(0, 0, 'Next', { font: '20px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1006);
+        nbBg.setInteractive({ useHandCursor: true });
+        const nbContainer = this.add.container(nextX, nextY, [nbBg, nbTxt]).setDepth(1005);
+        nbContainer.setVisible(true);
+        nbBg.on('pointerdown', () => {
+            nbContainer.destroy();
+            this.scene.start('scene_30');
+        });
+        
 
         EventBus.emit('current-scene-ready', this);
     }
