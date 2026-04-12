@@ -46,6 +46,17 @@ import { Scene42 } from './scenes/scene_42';
 import { Scene43 } from './scenes/scene_43';
 import { Scene44 } from './scenes/scene_44';
 import { Scene45 } from './scenes/scene_45';
+import { Scene46 } from './scenes/scene_46';
+import { Scene47 } from './scenes/scene_47';
+import { Scene48 } from './scenes/scene_48';
+import { Scene49 } from './scenes/scene_49';
+import { Scene50 } from './scenes/scene_50';
+import { Scene51 } from './scenes/scene_51';
+import { Scene52 } from './scenes/scene_52';
+import { Scene53 } from './scenes/scene_53';
+import { Scene54 } from './scenes/scene_54';
+import { Scene55 } from './scenes/scene_55';
+import { Scene56 } from './scenes/scene_56';
 import { AUTO, Game } from 'phaser';
 
 // Find out more information about the Game Config at:
@@ -105,6 +116,18 @@ const config: Phaser.Types.Core.GameConfig = {
         Scene43,
         Scene44,
         Scene45
+        ,
+        Scene46,
+        Scene47,
+        Scene48,
+        Scene49,
+        Scene50,
+        Scene51,
+        Scene52,
+        Scene53,
+        Scene54,
+        Scene55,
+        Scene56
     ]
 };
 

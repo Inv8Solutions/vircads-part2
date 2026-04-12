@@ -37,6 +37,7 @@ export class Boot extends Scene
         this.load.image('internal_bleeding', 'assets/internal_bleeding_brain.jpeg');
         this.load.image('no_internal_bleeding', 'assets/no_internal_bleeding_brain.jpeg');
         this.load.image('lab_tech', 'assets/lab_tech.png');
+        this.load.image('ladle', 'assets/ladle.png');
         this.load.image('optic_chiasm', 'assets/optic_chiasm.jpeg');
         this.load.image('scene_23', 'assets/scene_23.png');
         this.load.image('scene_27', 'assets/scene_27.png');
@@ -46,6 +47,11 @@ export class Boot extends Scene
         this.load.image('scene_32', 'assets/scene_32.png');
         this.load.image('scene_40', 'assets/scene_40.png');
         this.load.image('rib_removal', 'assets/rib_removal.png');
+        this.load.image('scene_44', 'assets/scene_44.png');
+        this.load.image('scene_46', 'assets/scene_46.png');
+        this.load.image('ladle', 'assets/ladle.png');
+        this.load.image('beaker_blood', 'assets/beaker_blood.png');
+        this.load.image('scene_52', 'assets/scene_52.png');
     }
 
     create ()
