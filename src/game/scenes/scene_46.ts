@@ -41,7 +41,7 @@ export class Scene46 extends Scene {
         };
         this.data.set('heartModelViewport', vpBounds);
 
-        const GLB_URL = 'assets/heart_model.glb';
+        const GLB_URL = 'assets/heart.glb';
         const ENABLE_3D = true;
         if (ENABLE_3D) {
             this.initThreeOBJ(GLB_URL, vpBounds);
@@ -50,7 +50,7 @@ export class Scene46 extends Scene {
         // Bottom-center dialog: interaction hint
         const botW = Math.min(520, Math.round(width * 0.5));
         const botPad = 10;
-        const botText = 'Click and drag inside the 3D viewer to rotate the model';
+        const botText = 'Click inside the 3D viewer to focus on the model, then move your cursor outside the viewer to rotate the model.';
         const botStyle: Phaser.Types.GameObjects.Text.TextStyle = { font: '15px Arial', color: '#ffffff', wordWrap: { width: botW - botPad * 2 } };
         const botObj = this.add.text(0, 0, botText, botStyle).setOrigin(0.5, 0).setDepth(1002);
         const botH = botPad + botObj.height + botPad;

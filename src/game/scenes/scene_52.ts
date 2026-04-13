@@ -27,6 +27,17 @@ export class Scene52 extends Scene {
             box.lineStyle(2, 0xffffff, 0.08);
             box.strokeRoundedRect(boxX, boxY, boxW, boxH, 10);
         } catch (e) { /* ignore */ }
+        // Bottom-right Next button
+        const nextX = width - 96;
+        const nextY = height - 72;
+        const nbBg = this.add.rectangle(0, 0, 160, 48, 0x000000, 0.85).setOrigin(0.5).setDepth(80).setInteractive({ useHandCursor: true });
+        const nbTxt = this.add.text(0, 0, 'Next', { font: '20px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(81);
+        const nbContainer = this.add.container(nextX, nextY, [nbBg, nbTxt]).setDepth(80);
+        nbBg.on('pointerdown', () => {
+            nbContainer.destroy();
+            this.scene.start('scene_53');
+        });
+
         EventBus.emit('current-scene-ready', this);
     }
 }
