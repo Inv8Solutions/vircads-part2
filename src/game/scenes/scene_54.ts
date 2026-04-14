@@ -33,6 +33,19 @@ export class Scene54 extends Scene {
         const dialogContainer = this.add.container(width / 2, dialogY, [bgRect, txt]).setDepth(1200);
         txt.y = dialogPadding;
 
+        // Invisible hitbox defined by coordinates (417,346) and (503,442)
+        const x1 = 417, y1 = 346, x2 = 503, y2 = 442;
+        const left = Math.min(x1, x2);
+        const top = Math.min(y1, y2);
+        const w = Math.abs(x2 - x1);
+        const h = Math.abs(y2 - y1);
+        const hit = this.add.rectangle(left + w / 2, top + h / 2, w, h, 0x000000, 0).setInteractive({ useHandCursor: true }).setDepth(1250);
+        hit.on('pointerup', () => {
+            this.scene.start('scene_55');
+        });
+
+        // drawing functionality removed from this scene; implemented in scene_55
+
         EventBus.emit('current-scene-ready', this);
     }
 }

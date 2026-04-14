@@ -52,6 +52,9 @@ export class Boot extends Scene
         this.load.image('ladle', 'assets/ladle.png');
         this.load.image('beaker_blood', 'assets/beaker_blood.png');
         this.load.image('scene_52', 'assets/scene_52.png');
+        this.load.image('scene_56', 'assets/scene_56.png');
+        this.load.image('open_stomach', 'assets/open_stomach.png');
+        this.load.image('scene_62', 'assets/scene_62.png');
     }
 
     create ()
