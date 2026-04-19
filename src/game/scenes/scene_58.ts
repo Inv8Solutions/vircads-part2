@@ -45,7 +45,7 @@ export class Scene58 extends Scene {
         nbBg.on('pointerdown', () => {
             try { dialogContainer.destroy(); } catch (e) {}
             try { nbContainer.destroy(); } catch (e) {}
-            this.scene.start('scene_59');
+            this.scene.start('scene_60');
         });
 
         EventBus.emit('current-scene-ready', this);

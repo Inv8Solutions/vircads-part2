@@ -20,32 +20,7 @@ export class Scene39 extends Scene {
             this.tweens.add({ targets: marker, alpha: 0, duration: 800, onComplete: () => { try { marker?.destroy(); marker = null; } catch (e) {} } });
         });
 
-        // Center dialog card with image and caption (rib_removal)
-        const cardW = Math.min(520, Math.round(width * 0.45));
-        const cardH = Math.min(360, Math.round(height * 0.4));
-        const cardPadding = 14;
-
-        const bg = this.add.graphics().setDepth(1100);
-        bg.fillStyle(0x000000, 0.92);
-        bg.fillRoundedRect(-cardW / 2, -cardH / 2, cardW, cardH, 12);
-
-        const img = this.add.image(0, -6, 'rib_removal').setOrigin(0.5).setDepth(1101);
-        const maxImgW = cardW - cardPadding * 2;
-        const maxImgH = cardH - 100;
-        const src: any = this.textures.get('rib_removal')?.getSourceImage?.();
-        if (src && src.width && src.height) {
-            const scale = Math.min(maxImgW / src.width, maxImgH / src.height, 1);
-            img.setDisplaySize(Math.round(src.width * scale), Math.round(src.height * scale));
-        } else {
-            img.setDisplaySize(maxImgW, maxImgH);
-        }
-
-        const caption = this.add.text(0, cardH / 2 - 20, 'actual image', { font: '14px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1101);
-
-        const margin = 16;
-        const cardX = width - cardW / 2 - margin;
-        const cardY = cardH / 2 + margin;
-        const card = this.add.container(cardX, cardY, [bg, img, caption]).setDepth(1100);
+        // (removed center image card)
 
         // Invisible hitbox spanning coordinates (679,42) to (991,464)
         const x1 = 679, y1 = 42, x2 = 991, y2 = 464;

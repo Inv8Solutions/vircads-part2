@@ -59,6 +59,21 @@ export class Scene21 extends Scene {
             const label = this.add.text(20 + 8, height - 20 - phH + 8, 'optic_chiasm MISSING', { font: '14px Arial', color: '#ffffff' }).setDepth(1001);
         }
 
+        try {
+            const btnW = 140; const btnH = 48; const pad = 20;
+            const bx = width - btnW / 2 - pad; const by = height - btnH / 2 - pad;
+            const nextContainer = this.add.container(bx, by).setDepth(1001);
+            const btnBg = this.add.graphics();
+            btnBg.fillStyle(0x222222, 0.95);
+            btnBg.fillRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+            btnBg.lineStyle(2, 0xffffff, 0.9);
+            btnBg.strokeRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
+            const label = this.add.text(0, 0, 'Next', { font: '20px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1002);
+            nextContainer.add([btnBg, label]);
+            btnBg.setInteractive(new Phaser.Geom.Rectangle(-btnW/2, -btnH/2, btnW, btnH), Phaser.Geom.Rectangle.Contains);
+            btnBg.on('pointerdown', () => { this.scene.start('scene_22'); });
+        } catch (e) { /* ignore next button errors */ }
+
         EventBus.emit('current-scene-ready', this);
     }
 }

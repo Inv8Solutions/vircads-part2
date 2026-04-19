@@ -30,9 +30,9 @@ export class Scene26 extends Scene {
         const btnX = Math.round(width - btnMargin - btnW / 2);
         const btnY = Math.round(height - btnMargin - btnH / 2);
         const btnBg = this.add.graphics().setDepth(1100);
-        btnBg.fillStyle(0xffffff, 1);
+        btnBg.fillStyle(0x000000, 1);
         btnBg.fillRoundedRect(-btnW / 2, -btnH / 2, btnW, btnH, 8);
-        const btnText = this.add.text(0, 0, 'Next', { font: '18px Arial', color: '#000000' }).setOrigin(0.5).setDepth(1101);
+        const btnText = this.add.text(0, 0, 'Next', { font: '18px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1101);
         const btnContainer = this.add.container(btnX, btnY, [btnBg, btnText]).setDepth(1100);
         const hitZone = this.add.zone(btnX, btnY, btnW, btnH).setOrigin(0.5).setInteractive({ useHandCursor: true });
         hitZone.on('pointerdown', () => {

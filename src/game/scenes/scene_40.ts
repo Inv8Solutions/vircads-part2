@@ -27,7 +27,7 @@ export class Scene40 extends Scene {
             const startY = height * 0.24;
             const question = 'After lifting the rib cage, the chest cavity is now accessible. To ensure clear examination, which organs should be first removed?';
             const options = ['Heart', 'Lungs'];
-            const correctIndex = 0; // Heart
+            const correctIndex = 1; // Heart
 
             const questionText = this.add.text(width / 2, startY, question, { fontFamily: 'Arial', fontSize: '20px', color: '#ffffff', align: 'center', wordWrap: { width: boxW } }).setOrigin(0.5, 0).setDepth(uiDepth + 52);
             overlay.add(questionText);

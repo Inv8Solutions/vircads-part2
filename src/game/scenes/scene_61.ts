@@ -53,7 +53,13 @@ export class Scene61 extends Scene {
         const quizContainer = this.add.container(width / 2, Math.round(height / 2), [quizBg, qText, ...optionContainers]).setDepth(1222);
         qText.x = 0; qText.y = -totalH / 2 + quizPadding;
 
+        // feedback text (hidden until selection)
+        const feedback = this.add.text(0, totalH / 2 - quizPadding - 20, '', { font: '18px Arial', color: '#ffffff' }).setOrigin(0.5).setDepth(1223);
+        feedback.setVisible(false);
+        quizContainer.add(feedback);
+
         const firstOptionCenterY = qText.y + qText.height + optionGap + optionHeight / 2;
+        let selected = false;
         optionContainers.forEach((cont, i) => {
             cont.x = 0;
             cont.y = firstOptionCenterY + i * (optionHeight + optionGap);
@@ -61,9 +67,28 @@ export class Scene61 extends Scene {
             const txtOpt = cont.list[1] as Phaser.GameObjects.Text;
             bg.setInteractive({ useHandCursor: true });
             bg.on('pointerdown', () => {
-                // highlight selection
-                optionContainers.forEach(c => { (c.list[0] as Phaser.GameObjects.Rectangle).setFillStyle(0x222222, 0.9); });
-                bg.setFillStyle(0x3366ff, 1);
+                if (selected) return;
+                selected = true;
+                // reset styles and disable further clicks
+                optionContainers.forEach(c => { const r = c.list[0] as Phaser.GameObjects.Rectangle; r.setFillStyle(0x222222, 0.9); r.disableInteractive(); });
+
+                const correctIndex = 1;
+                if (i === correctIndex) {
+                    // correct
+                    bg.setFillStyle(0x228B22, 1);
+                    feedback.setText('Correct');
+                    feedback.setStyle({ color: '#00ff00' });
+                } else {
+                    // wrong answer
+                    bg.setFillStyle(0x990000, 1);
+                    feedback.setText('Wrong');
+                    feedback.setStyle({ color: '#ff4444' });
+                    // highlight correct option
+                    const correctBg = optionContainers[correctIndex].list[0] as Phaser.GameObjects.Rectangle;
+                    correctBg.setFillStyle(0x228B22, 1);
+                }
+
+                feedback.setVisible(true);
                 // show Next button
                 nextBtn.setVisible(true);
             });

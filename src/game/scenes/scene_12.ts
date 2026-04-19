@@ -21,47 +21,7 @@ export class Scene12 extends Scene {
         const pScale = targetH / pH;
         placard.setDisplaySize(Math.max(1, Math.round(pW * pScale)), Math.max(1, Math.round(pH * pScale)));
 
-        // Dialog card: image on top and caption below
-        const baseWidth = Math.min(width * 0.8, 640);
-        const reducePx = 96; // ~3rem + another ~3rem = ~6rem
-        const cardWidth = Math.max(160, baseWidth - reducePx);
-        const padding = 12;
-        // Create a container for the card
-        const cardBg = this.add.graphics();
-        cardBg.fillStyle(0x000000, 0.9);
-        // temporary height; will adjust after loading image size
-        const cardHeight = 240;
-        cardBg.fillRoundedRect(-cardWidth / 2, 0, cardWidth, cardHeight, 10);
-
-        const cardContainer = this.add.container(cardWidth / 2 + 20, 40, [cardBg]).setDepth(1000);
-
-        // Add the image (scaled to fit cardWidth - padding)
-        const imgKey = 'coronal_flap';
-        const img = this.add.image(0, 0, imgKey).setOrigin(0.5, 0);
-        const srcImg: any = this.textures.get(imgKey)?.getSourceImage?.();
-        const srcW = (srcImg && srcImg.width) ? srcImg.width : img.width || cardWidth - padding * 2;
-        const srcH = (srcImg && srcImg.height) ? srcImg.height : img.height || 160;
-        const maxImgW = cardWidth - padding * 2;
-        const scale = Math.min(1, maxImgW / srcW);
-        img.setDisplaySize(srcW * scale, srcH * scale);
-        img.x = 0;
-        img.y = padding;
-        cardContainer.add(img);
-
-        // Caption text below the image
-        const caption = this.add.text(0, img.y + img.displayHeight + 8, 'actual image', { font: '16px Arial', color: '#ffffff', align: 'center' }).setOrigin(0.5, 0);
-        cardContainer.add(caption);
-
-        // Adjust background height to fit image + caption
-        const totalH = padding + img.displayHeight + 8 + caption.height + padding;
-        cardBg.clear();
-        cardBg.fillStyle(0x000000, 0.9);
-        cardBg.fillRoundedRect(-cardWidth / 2, 0, cardWidth, totalH, 10);
-
-        // Make card dismissible
-        cardContainer.setSize(cardWidth, totalH);
-        cardContainer.setInteractive(new Phaser.Geom.Rectangle(-cardWidth / 2, 0, cardWidth, totalH), Phaser.Geom.Rectangle.Contains);
-        cardContainer.on('pointerdown', () => { cardContainer.destroy(); cardBg.destroy(); img.destroy(); caption.destroy(); });
+       
 
         // Bottom-right Next button
         const nextX = width - 96;
